@@ -1,0 +1,32 @@
+service: email-api-python
+
+provider:
+  name: aws
+  runtime: python3.11
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  
+  # Environment variables for Lambda
+  environment:
+    SENDER_EMAIL: 'your-verified-email@example.com' # UPDATE THIS!
+    AWS_REGION: 'us-east-1'
+  
+  # IAM permissions for SES
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "ses:SendEmail"
+            - "ses:SendRawEmail"
+          Resource: "*"
+
+functions:
+  sendEmail:
+    handler: handler.send_email
+    events:
+      - httpApi:
+          path: /send-email
+          method: post
+plugins:
+  - serverless-offline
